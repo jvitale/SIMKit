@@ -2,7 +2,7 @@
 
 This is the documentation of **Smart Interactions Management Kit** (SIMKit). The present code samples are based on PyREEM version of PyRide (see https://github.com/kunle12/pyride_reem and https://github.com/uts-magic-lab/pyride_pr2). SIMKit can be used on any robot with PyRide installed.
 
-To use SIMKit in python you just have to import the class **`RobotScript` **and `**Event**` from **`SIMKit` **module:
+To use SIMKit in python you just have to import the class `**RobotScript**` and `**Event**` from `**SIMKit**` module:
 
 ```
 from SIMKit import RobotScript, Event
@@ -13,7 +13,7 @@ Then you can start create fancy robot scripts!
 
 ## Hello world script
 
-A robot script is composed by **channels **and **assets**. Let's start with the small pieces of the puzzle: the assets.
+A robot script is composed by **channels** and **assets**. Let's start with the small pieces of the puzzle: the assets.
 
 An asset is simply a call to a PyRide function. For example it can be a text we want to have the robot to say, the movement of an arm, the pitch and pan of the head, or even the enrolment of a new person in the face dataset for face recognition tasks!
 The asset can be played at specific times or after a certain event occurred, for example when another asset succeeded or failed, or even during more complex composed events, such as when an asset succeed after a certain time is reached.
@@ -91,7 +91,7 @@ If so, all the channels will stop to play any further asset. However, _the asset
 ## Adding Events and Triggers
 
 Sometimes it is preferable to synchronize assets automatically rather then using fixed times. With SIMKit it is possible to do that.
-In order to do that we need to specify **events **and **triggers. **An event is a temporal situation, a change in the state of a certain asset or a composition of other events. 
+In order to do that we need to specify **events** and **triggers**. An event is a temporal situation, a change in the state of a certain asset or a composition of other events. 
 
 But first, let's have a step back. The assets have **different states**: `off`, `on`, `succeeded`, `failed`. An asset is off when it is not playing. It is on when the asset is currently playing but not yet succeeded or failed. It is succeeded when the `onSuccess` callback function is invoked, and failed when the `onFailed` callback function is invoked. If in the channel is not specified an `onSuccess` callback function, its assets pass automatically from `“on”` to `“succeeded”`.
 
@@ -188,7 +188,7 @@ def my_callback_function(notifier):
   notifier.printNotificationsHystory()
 ```
 
-In this example we can use the method **`printNotificationsHystory`  **(_to be done soon_) of the notifying committed `RobotScript` object to retrieve the timeline hystory of all the assets states for each channel:
+In this example we can use the method `**printNotificationsHystory**` (_to be done soon_) of the notifying committed `RobotScript` object to retrieve the timeline hystory of all the assets states for each channel:
 
 ```
 --------
