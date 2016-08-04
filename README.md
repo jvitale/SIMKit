@@ -2,7 +2,7 @@
 
 This is the documentation of **Smart Interactions Management Kit** (SIMKit). The present code samples are based on PyREEM version of PyRide (see https://github.com/kunle12/pyride_reem and https://github.com/uts-magic-lab/pyride_pr2). SIMKit can be used on any robot with PyRide installed.
 
-To use SIMKit in python you just have to import the class `**RobotScript**` and `**Event**` from `**SIMKit**` module:
+To use SIMKit in python you just have to import the class `RobotScript` and `Event` from `SIMKit` module:
 
 ```
 from SIMKit import RobotScript, Event
@@ -130,7 +130,7 @@ event5 = Event(Event.OR_EVENT, event1, event2)
 
 Obviously, there is no limit in composing events of type `AND_EVENT` and `OR_EVENT`.
 
-In order to play a specific asset when an event occurs we need a trigger. Let's say we want to say `“I am REEM”` 1 second after the `“Hello world”` asset fully succeeded. To create this trigger is very simple with the method `**addTrigger**`:
+In order to play a specific asset when an event occurs we need a trigger. Let's say we want to say `“I am REEM”` 1 second after the `“Hello world”` asset fully succeeded. To create this trigger is very simple with the method `addTrigger`:
 
 ```
 rs.addTrigger(asset_imchip_id, event2, 1, 1)
@@ -188,7 +188,7 @@ def my_callback_function(notifier):
   notifier.printNotificationsHystory()
 ```
 
-In this example we can use the method `**printNotificationsHystory**` (_to be done soon_) of the notifying committed `RobotScript` object to retrieve the timeline hystory of all the assets states for each channel:
+In this example we can use the method `printNotificationsHystory` (_to be done soon_) of the notifying committed `RobotScript` object to retrieve the timeline hystory of all the assets states for each channel:
 
 ```
 --------
