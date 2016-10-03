@@ -402,7 +402,7 @@ class AssetsChannel:
 	
 	#callback managers
 	
-	def manageAssetOnSuccess(self, argvar=()):
+	def manageAssetOnSuccess(self, *argvar):
 		succeeded_asset = self.asset_playing
 		if succeeded_asset != None:
 			succeeded_asset.setStateSucceeded()
@@ -411,7 +411,7 @@ class AssetsChannel:
 			
 			self.updateChannelState()
 	
-	def manageAssetOnFailed(self, argvar=()):
+	def manageAssetOnFailed(self, *argvar):
 		failed_asset = self.asset_playing 
 		if failed_asset != None:
 			failed_asset.setStateFailed()
