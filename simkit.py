@@ -563,15 +563,21 @@ class RobotScript:
 	
 	#ADD CHANNELS, ASSETS, TRIGGERS, DEFAULT STATE SCRIPT, ON COMMIT CB FUNCTION
 	
-	def addChannel(self, pyride_topic, pyride_on_success_func=None, pyride_on_fail_func=None):
-		channel_id = "channel_"+pyride_topic
+	def addChannel(self, pyride_topic, pyride_on_success_func=None, pyride_on_fail_func=None, const_channel_id=None):
+		if const_channel_id is None:
+			channel_id = "channel_"+pyride_topic
+		else:
+			channel_id = const_channel_id
 		channel = AssetsChannel(channel_id, pyride_topic, self.dispatcher, self.onChannelCommitted, pyride_on_success_func, pyride_on_fail_func)
 		self.script_channels.update({channel_id: channel})
 		self.obj_dict["channels"].update({channel_id: {"pyride_topic": pyride_topic, "pyride_on_success_func": pyride_on_success_func, "pyride_on_fail_func": pyride_on_fail_func}})
 		return channel_id
 	
-	def addAssetToChannel(self, channel_id, times_to_start, asset_content):
-		asset_id = self.script_channels[channel_id].getNextAssetID()
+	def addAssetToChannel(self, channel_id, times_to_start, asset_content, const_asset_id=None):
+		if const_asset_id is None:
+			asset_id = self.script_channels[channel_id].getNextAssetID()
+		else:
+			asset_id = const_asset_id
 		asset = ActionAsset(asset_id, asset_content)
 		self.script_channels[channel_id].addAsset(asset, times_to_start)
 		self.obj_dict["assets"].update({asset_id: {"channel_id": channel_id, "times_to_start": times_to_start, "asset_content": asset_content}})
@@ -669,11 +675,15 @@ class RobotScript:
 	def importFromDict(obj_dict):
 		rs = RobotScript()
 
-		for channel in obj_dict["channels"].values():
-			rs.addChannel(channel["pyride_topic"], channel["pyride_on_success_func"], channel["pyride_on_fail_func"])
+		for channel_tuple in obj_dict["channels"].items():
+			channel_id = channel_tuple[0]
+			channel = channel_tuple[1]
+			rs.addChannel(channel["pyride_topic"], channel["pyride_on_success_func"], channel["pyride_on_fail_func"],channel_id)
 		
-		for asset in obj_dict["assets"].values():
-			rs.addAssetToChannel(asset["channel_id"],asset["times_to_start"],asset["asset_content"])
+		for asset_tuple in obj_dict["assets"].items():
+			asset_id = asset_tuple[0]
+			asset = asset_tuple[1]
+			rs.addAssetToChannel(asset["channel_id"],asset["times_to_start"],asset["asset_content"],asset_id)
 		
 		for trigger in obj_dict["triggers"].values():
 			trigger_event = Event.eventFromDict(trigger["trigger_event"])
