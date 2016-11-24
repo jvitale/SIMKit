@@ -206,10 +206,16 @@ class Event:
 	FAILED_EVENT = 2 #this type of event requires 1 argument: ref_asset_id
 	AND_EVENTS = 3 #this type of event requires 2 arguments: event1 and event2
 	OR_EVENTS = 4 #this type of event requires 2 argument2: event1 and event2
+	NOT_EVENT = 5 #this type of event requires 1 argument: event1
+	ON_EVENT = 6 #this type of event requires 1 argument: ref_asset_id
+	OFF_EVENT = 7 #this type of event requires 1 argument: ref_asset_id
 	
 	def __init__(self, event_type, *event_args):
-		if event_type == Event.TIME_EVENT or event_type == Event.SUCCEEDED_EVENT or event_type == Event.FAILED_EVENT:
+		if event_type in [Event.TIME_EVENT, Event.SUCCEEDED_EVENT, Event.FAILED_EVENT, Event.ON_EVENT, Event.OFF_EVENT]:
 			self.left = None
+			self.right = None
+		elif event_type == Event.NOT_EVENT:
+			self.left = event_args[0]
 			self.right = None
 		else:
 			#It is a AND or OR, event_args contains two events to compose together
@@ -219,15 +225,30 @@ class Event:
 		self.data = {"event_type":event_type, "event_args": event_args, "value":False}
 	
 	def assessEvent(self): #verify if the Event tree is True or False (if the event happened or not)
-		if self.data["event_type"] == Event.TIME_EVENT or self.data["event_type"] == Event.SUCCEEDED_EVENT or self.data["event_type"] == Event.FAILED_EVENT:
+		if self.data["event_type"] in [Event.TIME_EVENT, Event.SUCCEEDED_EVENT, Event.FAILED_EVENT, Event.ON_EVENT, Event.OFF_EVENT]:
 			return self.data["value"]
 		elif self.data["event_type"] == Event.AND_EVENTS:
 			return self.left.assessEvent() and self.right.assessEvent()
+		elif self.data["event_type"] == Event.NOT_EVENT:
+			return not self.left.assessEvent()
 		else:
 			return self.left.assessEvent() or self.right.assessEvent()
 	
+	def doesEventMatchAssetState(self,asset_state):
+		if (self.data["event_type"] == Event.SUCCEEDED_EVENT) and (asset_state == ActionAsset.STATE_SUCCEEDED):
+			return True
+		if (self.data["event_type"] == Event.FAILED_EVENT) and (asset_state == ActionAsset.STATE_FAILED):
+			return True
+		if (self.data["event_type"] == Event.ON_EVENT) and (asset_state == ActionAsset.STATE_ON):
+			return True
+		if (self.data["event_type"] == Event.OFF_EVENT) and (asset_state == ActionAsset.STATE_OFF):
+			return True
+		
+		return False
+		
+	
 	def propagateNewState(self, asset_id, asset_state): #propagates the new informed state of the asset through the Event tree
-		if (((self.data["event_type"] == Event.SUCCEEDED_EVENT) and (asset_state == ActionAsset.STATE_SUCCEEDED)) or ((self.data["event_type"] == Event.FAILED_EVENT) and (asset_state == ActionAsset.STATE_FAILED))) and self.data["event_args"][0] == asset_id:
+		if self.data["event_args"][0] == asset_id and self.doesEventMatchAssetState(asset_state):
 			self.data["value"] = True
 		if self.left != None:
 			self.left.propagateNewState(asset_id, asset_state)
@@ -263,6 +284,8 @@ class Event:
 		data = {"event_type":self.data["event_type"], "event_args": tuple(event_args), "value":False}
 		if self.left == None:
 			return {"data": data, "left": None, "right": None}
+		elif self.right == None:
+			return {"data": data, "left": self.left.toDictStructure(), "right": None}
 		else:
 			return {"data": data, "left": self.left.toDictStructure(), "right": self.right.toDictStructure()}
 	
@@ -487,8 +510,8 @@ class AssetsChannel:
 		pr_play()
 		
 		#if the channel does not have a callback function for success, I send the state to success immediately
-		if self.on_success_function == None:
-			self.manageAssetOnSuccess()
+		#if self.on_success_function == None:
+		#	self.manageAssetOnSuccess()
 	
 	def stop(self): #this method prevent ANY asset of the current channel to be played (the channel is "mute")
 		for asset in self.assets.values():
@@ -526,6 +549,7 @@ class RobotScript:
 		self.obj_dict = {"channels": {}, "assets": {}, "triggers": {}, "default_state_script": None}
 		self.log = []
 		self.start_time = None
+		self.current_KB = {}
 		
 	#CALLBACK FUNCTIONS
 		
